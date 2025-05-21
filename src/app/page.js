@@ -3,11 +3,36 @@ import { useState } from "react";
 
 export default function Home() {
   const [url, setUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle URL submission here
-    console.log("Submitted URL:", url);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('https://pinterestbotpython-production.up.railway.app/add-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit URL');
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      setUrl(''); // Clear the input after successful submission
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -35,18 +60,25 @@ export default function Home() {
                        placeholder-gray-500 dark:placeholder-gray-400
                        transition-all duration-200"
               required
+              disabled={isLoading}
             />
           </div>
           
+          {error && (
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          )}
+          
           <button
             type="submit"
+            disabled={isLoading}
             className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 
                      text-white font-medium rounded-lg
                      transition-all duration-200 transform hover:scale-[1.02]
                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                     dark:focus:ring-offset-gray-800"
+                     dark:focus:ring-offset-gray-800
+                     disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Shorten URL
+            {isLoading ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       </div>
