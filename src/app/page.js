@@ -17,7 +17,7 @@ export default function Home() {
       formData.append('email', email);
       formData.append('link', url);
 
-      const response = await fetch('http://213.165.250.221/add-link', {
+      const response = await fetch('http://213.165.250.221:8182/add-link', {
         method: 'POST',
         body: formData,
       });
